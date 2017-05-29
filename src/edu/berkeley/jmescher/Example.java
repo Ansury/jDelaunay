@@ -25,7 +25,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
 package edu.berkeley.jmescher;
 
 import java.awt.Color;
@@ -42,15 +41,19 @@ import javax.swing.JPanel;
  *
  * @author Mark Howison
  */
-public class Example extends JPanel
-{
+public class Example extends JPanel {
+
     double epsilon = 1.0;
-    int size = 600; /* size of square in pixels */
-    int nsides = 16; /* number of sides in the boundary polygon */
-    int npts = 100; /* number of points to insert */
-    int nedges = 10; /* number of edges to constrain */
-    double min = 10;
-    double max = size - 10;
+    int size = 900;
+    /* size of square in pixels */
+    int nsides = 16;
+    /* number of sides in the boundary polygon */
+    int npts = 300;
+    /* number of points to insert */
+    int nedges = 10;
+    /* number of edges to constrain */
+    double min = 0;
+    double max = size;
     Mesh mesh;
 
     public static void main(String[] args) {
@@ -60,14 +63,14 @@ public class Example extends JPanel
         Example example = new Example(frame);
         frame.getContentPane().add(example);
         frame.pack();
+        frame.setLocation(1000, 200);
         frame.setVisible(true);
         example.createMesh();
         example.repaint();
     }
-    
-    public Example(JFrame frame)
-    {
-        setPreferredSize(new Dimension(size,size));
+
+    public Example(JFrame frame) {
+        setPreferredSize(new Dimension(size, size));
         setBackground(Color.WHITE);
         mesh = new Mesh(epsilon);
         mesh.setDebugFrame(frame);
@@ -75,45 +78,42 @@ public class Example extends JPanel
         mesh.setName("Example Mesh");
     }
 
-    public void createMesh()
-    {
+    public void createMesh() {
         /* create a square boundary */
         BPoint[] boundary = new BPoint[4];
-        boundary[0] = new BPoint(min,min);
-        boundary[1] = new BPoint(min,max);
-        boundary[2] = new BPoint(max,max);
-        boundary[3] = new BPoint(max,min);
+        boundary[0] = new BPoint(min, min);
+        boundary[1] = new BPoint(min, max);
+        boundary[2] = new BPoint(max, max);
+        boundary[3] = new BPoint(max, min);
         Mesh.linkBoundary(boundary);
         mesh.init(boundary);
-        
-        /* randomly insert interior points */
-        for (int i=0; i<npts; i++) {
+
+        for (int i = 0; i < npts; i++) {
             Point p = new Point();
-            p.x = min + epsilon + Math.random() * (max - min - 2*epsilon);
-            p.y = min + epsilon + Math.random() * (max - min - 2*epsilon);
+            p.x = min + epsilon + Math.random() * (max - min - 2 * epsilon);
+            p.y = min + epsilon + Math.random() * (max - min - 2 * epsilon);
             mesh.addInteriorPoint(p);
         }
 
         /* randomly constrain edges */
         int s = mesh.size() - 1;
-        for (int i=0; i<nedges; ) {
-            Point p1 = mesh.getPoint( (int) (Math.random()*s) );
-            Point p2 = mesh.getPoint( (int) (Math.random()*s) );
+        for (int i = 0; i < nedges;) {
+            Point p1 = mesh.getPoint((int) (Math.random() * s));
+            Point p2 = mesh.getPoint((int) (Math.random() * s));
             if (p1 != p2) {
-                mesh.addConstraint(p1,p2);
+                //mesh.addConstraint(p1, p2);
                 i++;
             }
         }
     }
 
     @Override
-    protected void paintComponent(Graphics g)
-    {
+    protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D)g.create();
+        Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(
-                RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
+            RenderingHints.KEY_ANTIALIASING,
+            RenderingHints.VALUE_ANTIALIAS_ON);
         mesh.drawPoints(g2);
         mesh.drawLines(g2);
         mesh.drawDebug(g2);
